@@ -1,0 +1,61 @@
+@define-color bg-color rgba(0, 0, 0, 0.5);
+@define-color border-color rgba(55, 55, 55, 0.5);
+
+* {
+	border: none;
+	border-radius: 7px;
+}
+window#waybar {
+	background: rgba(0, 0, 0, 0);
+}
+
+.modules-left {
+	margin: 0 0 9px 10px;
+}
+.modules-center {
+	margin: 0 0px 9px 0;
+}
+.modules-right {
+	margin: 0 10px 9px 0;
+}
+
+#window {
+	background: @bg-color;
+	border: 1px solid @border-color;
+	padding: 0px 10px;
+}
+
+#custom-launcher {
+	background: @bg-color;
+	border: 1px solid @border-color;
+	padding: 0px 14px;
+
+	background-image: url('');
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 60%;
+}
+
+#taskbar {
+	background: @bg-color;
+	border: 1px solid @border-color;
+	padding:  0 5px 0 5px;
+}
+
+#workspaces {
+	background: @bg-color;
+	border: 1px solid @border-color;
+	padding:  0 5px 0 5px;
+}
+
+#cpu,
+#memory,
+#pulseaudio,
+#clock,
+#tray {
+	padding-left: 10px;
+	padding-right: 10px;
+
+	background: @bg-color;
+	border: 1px solid @border-color;
+}
