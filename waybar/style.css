@@ -9,22 +9,6 @@ window#waybar {
 	background: rgba(0, 0, 0, 0);
 }
 
-.modules-left {
-	margin: 0 0 9px 10px;
-}
-.modules-center {
-	margin: 0 0px 9px 0;
-}
-.modules-right {
-	margin: 0 10px 9px 0;
-}
-
-#window {
-	background: @bg-color;
-	border: 1px solid @border-color;
-	padding: 0px 10px;
-}
-
 #custom-launcher {
 	background: @bg-color;
 	border: 1px solid @border-color;
@@ -34,20 +18,21 @@ window#waybar {
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: 60%;
+
+	margin: 0px 5px 9px 5px;
+	box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.8);
 }
 
 #taskbar {
-	background: @bg-color;
-	border: 1px solid @border-color;
 	padding:  0 5px 0 5px;
 }
 
 #workspaces {
-	background: @bg-color;
-	border: 1px solid @border-color;
 	padding:  0 5px 0 5px;
 }
 
+#workspaces,
+#taskbar,
 #cpu,
 #memory,
 #pulseaudio,
@@ -58,4 +43,6 @@ window#waybar {
 
 	background: @bg-color;
 	border: 1px solid @border-color;
+	margin: 0px 5px 9px 0px;
+	box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.8);
 }

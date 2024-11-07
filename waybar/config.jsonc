@@ -9,6 +9,7 @@
     // Choose the order of the modules
     "modules-left": [
 		"custom/launcher",
+		//"custom/power",
         "hyprland/workspaces",
     ],
     "modules-center": [
@@ -123,5 +124,17 @@
 		"format": " ",
         "tooltip": false,
 		"on-click": "rofi -i -show drun -modi drun -show-icons"
-	}
+	},
+	"custom/power": {
+		"format" : "⏻ ",
+		"tooltip": false,
+		"menu": "on-click",
+		"menu-file": "~/.config/waybar/power_menu.xml",
+		"menu-actions": {
+			"shutdown": "shutdown",
+			"reboot": "reboot",
+			"suspend": "systemctl suspend",
+			"hibernate": "systemctl hibernate",
+		},
+	},
 }
