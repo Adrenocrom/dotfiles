@@ -1,4 +1,4 @@
-@define-color bg-color rgba(0, 0, 0, 0.5);
+@define-color bg-color rgba(0, 0, 0, 0.8);
 @define-color border-color rgba(55, 55, 55, 0.5);
 
 * {
@@ -17,7 +17,7 @@ window#waybar {
 	background-image: url('');
 	background-position: center;
 	background-repeat: no-repeat;
-	background-size: 60%;
+	background-size: 90%;
 
 	margin: 0px 5px 9px 5px;
 	box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.8);
@@ -43,6 +43,8 @@ window#waybar {
 	padding-right: 10px;
 
 	background: @bg-color;
+	background-position: center;
+	background-size: 100% auto;
 	border: 1px solid @border-color;
 	margin: 0px 5px 9px 0px;
 	box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.8);
