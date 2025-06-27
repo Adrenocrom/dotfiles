@@ -1,0 +1,8 @@
+#!/bin/bash
+
+HAS_TOCK="$(pidof -x "tock")"
+if [ -z ${HAS_TOCK}  ]; then
+	konsole --profile="widget" -e "tock -C 7";
+else 
+	kill ${HAS_TOCK}
+fi
