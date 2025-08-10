@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jump & Run Demo</title>
+<style>
+  body{
+    margin:0;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+    background:#222;
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+  }
+  canvas{
+    background:#87ceeb;      /* default sky colour – overwritten per level */
+    border:2px solid #333;
+  }
+  #overlay{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    font-size:24px;
+    color:#fff;
+  }
+  #overlay span{
+    background:#0008;
+    padding:10px 20px;
+    border-radius:8px;
+  }
+</style>
+</head>
+<body>
+<canvas id="gameCanvas" width="800" height="450"></canvas>
+<div id="overlay"><span id="msg">Press any key to start</span></div>
+
+<script>
+/* ==============================================================
+   Simple Jump & Run Demo – No external dependencies
+   ============================================================== */
+
+// ----- CONSTANTS -----
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('overlay');
+const msgEl = document.getElementById('msg');
+const GRAVITY = 0.6;
+const FRICTION = 0.8;
+const MOVE_SPEED = 4;
+const JUMP_FORCE = -12;
+const PLAYER_COLOR = '#ff0';
+const PLATFORM_COLOR = '#654321';
+const BACKGROUND_COLOR = '#87ceeb';
+const LEVEL_WIDTH = 2000;   // total length of each level in px
+
+// ----- GAME STATE -----
+let keys = {};
+let gameStarted = false;
+let gameOver = false;
+let levelIndex = 0;
+
+// ----- PLAYER -----
+class Player {
+    constructor(){
+        this.w = 40;
+        this.h = 60;
+        this.x = 50;
+        this.y = 0;          // will be set by spawn
+        this.vx = 0;
+        this.vy = 0;
+        this.onGround = false;
+    }
+    spawn(){
+        this.x = 50;
+        this.y = levelData[levelIndex].startY - this.h;
+        this.vx = 0;
+        this.vy = 0;
+        this.onGround = false;
+    }
+    update(){
+        // Horizontal movement
+        if (keys.left) this.vx = -MOVE_SPEED;
+        else if (keys.right) this.vx = MOVE_SPEED;
+        else this.vx = 0;
+
+        // Jump
+        if (keys.space && this.onGround){
+            this.vy = JUMP_FORCE;
+            this.onGround = false;
+        }
+
+        // Apply physics
+        this.vy += GRAVITY;
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Collision with platforms
+        this.onGround = false;   // will be set true if collision detected
+        for (let p of levelData[levelIndex].platforms){
+            if (this.vy >= 0 && // falling
+                this.x + this.w > p.x &&
+                this.x < p.x + p.w &&
+                this.y + this.h >= p.y &&
+                this.y + this.h <= p.y + this.vy){  // overshoot check
+                this.y = p.y - this.h;
+                this.vy = 0;
+                this.onGround = true;
+            }
+        }
+
+        // World bounds
+        if (this.x < 0) this.x = 0;
+        if (this.x + this.w > LEVEL_WIDTH) this.x = LEVEL_WIDTH - this.w;
+
+        // Game over if falls below canvas
+        if (this.y > canvas.height){
+            gameOver = true;
+        }
+    }
+    draw(){
+        ctx.fillStyle = PLAYER_COLOR;
+        ctx.fillRect(this.x - cam.x, this.y, this.w, this.h);
+    }
+}
+
+// ----- CAMERA -----
+class Camera {
+    constructor(){
+        this.x = 0;
+        this.y = 0;
+    }
+    update(){
+        // Center player horizontally (but clamp to level bounds)
+        const targetX = player.x + player.w/2 - canvas.width/2;
+        this.x = Math.min(Math.max(targetX, 0), LEVEL_WIDTH - canvas.width);
+    }
+}
+const cam = new Camera();
+const player = new Player();
+
+// ----- LEVELS -----
+const levelData = [
+    {   // Level 1 – simple
+        startY: 350,
+        background: '#87ceeb',
+        platforms: [
+            {x:0, y:380, w:800, h:20},
+            {x:300, y:300, w:120, h:20},
+            {x:500, y:220, w:140, h:20},
+            {x:800, y:380, w:300, h:20},
+            {x:1300, y:260, w:100, h:20},
+            {x:1700, y:340, w:200, h:20},
+        ]
+    },
+    {   // Level 2 – a bit harder
+        startY: 350,
+        background: '#cfe4ff',
+        platforms: [
+            {x:0, y:380, w:800, h:20},
+            {x:250, y:300, w:120, h:20},
+            {x:550, y:220, w:140, h:20},
+            {x:850, y:380, w:120, h:20},
+            {x:1200, y:260, w:100, h:20},
+            {x:1400, y:200, w:200, h:20},
+            {x:1700, y:340, w:200, h:20},
+            {x:1900, y:380, w:200, h:20},
+        ]
+    }
+];
+
+// ----- INPUT -----
+window.addEventListener('keydown', e=>{
+    if (!gameStarted) {
+        startGame();
+        return;
+    }
+    if (gameOver && e.key === 'r') {
+        restartGame();
+        return;
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+    if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+    if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') keys.space = true;
+});
+window.addEventListener('keyup', e=>{
+    if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+    if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+    if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') keys.space = false;
+});
+
+// ----- GAME LOOP -----
+function gameLoop(){
+    if (!gameStarted) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // Draw background
+    ctx.fillStyle = levelData[levelIndex].background;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // Update camera
+    cam.update();
+
+    // Draw platforms
+    for (let p of levelData[levelIndex].platforms){
+        ctx.fillStyle = PLATFORM_COLOR;
+        ctx.fillRect(p.x - cam.x, p.y, p.w, p.h);
+    }
+
+    // Update & draw player
+    if (!gameOver) {
+        player.update();
+    }
+    player.draw();
+
+    // UI
+    ctx.fillStyle = '#fff';
+    ctx.font = '18px Arial';
+    ctx.fillText(`Level ${levelIndex+1}`, 10, 20);
+    if (gameOver) {
+        ctx.font = '36px Arial';
+        ctx.fillText('Game Over! Press R to restart', canvas.width/2-180, canvas.height/2);
+    }
+
+    // Level progression
+    if (!gameOver && player.x + player.w >= LEVEL_WIDTH - 50){
+        if (levelIndex < levelData.length-1){
+            levelIndex++;
+            player.spawn();
+            overlay.style.display = 'none';
+        } else {
+            overlay.style.display = 'none';
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = '48px Arial';
+            ctx.fillText('You Win!', canvas.width/2-120, canvas.height/2);
+        }
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+// ----- GAME CONTROL -----
+function startGame(){
+    gameStarted = true;
+    overlay.style.display = 'none';
+    levelIndex = 0;
+    player.spawn();
+    gameOver = false;
+    requestAnimationFrame(gameLoop);
+}
+function restartGame(){
+    levelIndex = 0;
+    player.spawn();
+    gameOver = false;
+    overlay.style.display = 'none';
+}
+
+// ----- INITIAL SETUP -----
+player.spawn();
+
+</script>
+</body>
+</html>
