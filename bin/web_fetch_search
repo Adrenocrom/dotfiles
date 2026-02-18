@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Check number of arguments
+if [[ $# -eq 0 || $# -gt 1 ]]; then
+  echo "Error: Please 1 argument." >&2
+  exit 1
+fi
+
+url="https://duckduckgo.com"
+query="$1"
+content="$(curl --silent --data-urlencode "q=$query" $url | pandoc -f html -t gfm-raw_html)"
+prompt="list best search results for $query in: $content"
+
+# TODO: Add your logic here
+echo "$prompt" | ollama run gpt-oss:20b

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Check number of arguments
+if [[ $# -eq 0 || $# -gt 1 ]]; then
+  echo "Error: Please provide 1 argument." >&2
+  exit 1
+fi
+
+# If only one argument, it's URL
+if [[ $# -eq 1 ]]; then
+  url="$1"
+  content="$(curl --silent $url | pandoc -f html -t gfm)"
+fi
+
+echo "$content"

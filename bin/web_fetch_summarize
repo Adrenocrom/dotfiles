@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Check number of arguments
+if [[ $# -eq 0 || $# -gt 2 ]]; then
+  echo "Error: Please provide 1 or 2 arguments." >&2
+  exit 1
+fi
+
+# If only one argument, it's URL
+if [[ $# -eq 1 ]]; then
+  url="$1"
+  content="$(curl --silent $url | pandoc -f html -t gfm-raw_html)"
+  prompt="summerize in 10 sentences: $content"
+else
+  url="$2"
+  content="$(curl --silent $url | pandoc -f html -t gfm-raw_html)"
+  prompt="$1: $content"
+fi
+
+# TODO: Add your logic here
+echo "$prompt" | ollama run gpt-oss:20b
