@@ -2,14 +2,23 @@
 
 # Check number of arguments
 if [[ $# -eq 0 || $# -gt 1 ]]; then
-  echo "Error: Please provide 1 argument." >&2
-  exit 1
+	echo "Error: Please provide 1 argument." >&2
+	exit 1
 fi
 
 # If only one argument, it's URL
 if [[ $# -eq 1 ]]; then
-  url="$1"
-  content="$(curl -L --silent $url | pandoc -f html -t gfm)"
+	url="$1"
+
+	# 1. Validate that the input is actually a URL to prevent flag injection and random strings
+	if [[ ! "$url" =~ ^https?:// ]]; then
+		echo "Error: Invalid URL. Please provide a URL starting with http:// or https://" >&2
+		exit 1
+	fi
+	#
+	# 2. Quote the variable and use -- to stop curl from interpreting the URL as a flag
+	# 3. Using -f (fail) ensures curl doesn't output HTML error pages into pandoc
+	content="$(curl --silent -L -f -- "$url" | pandoc -f html -t gfm)"
 fi
 
 echo "$content"
